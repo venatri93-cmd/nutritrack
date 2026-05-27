@@ -586,7 +586,7 @@ async function init(){
 
 async function seedIfEmpty(){
   if(localStorage.getItem('nt5_seeded'))return;
-  setSS('syncing','&#10227; Importiere Daten...');
+  setSS('syncing','Importiere...');
   for(const lm of SEED_LM){
     try{await sbInsert('nt_lebensmittel',{...lm,user_id:UID});}catch(e){}
   }
@@ -594,7 +594,7 @@ async function seedIfEmpty(){
     try{await sbInsert('nt_rezepte',{...r,user_id:UID});}catch(e){}
   }
   localStorage.setItem('nt5_seeded','1');
-  setSS('synced','&#10003; Daten importiert');
+  setSS('synced','Verbunden');
 }
 
 async function loadAllDB(){
@@ -614,7 +614,7 @@ async function removeDuplicates(){
     for(const id of toDelete){await sbDelete('nt_lebensmittel',id);lmDB=lmDB.filter(l=>l.id!==id);}
     for(const id of toDeleteR){await sbDelete('nt_rezepte',id);rezDB=rezDB.filter(r=>r.id!==id);}
     const n=toDelete.length+toDeleteR.length;
-    if(n>0)setSS('synced',`&#10003; ${n} Duplikate entfernt`);
+    if(n>0)setSS('synced',`${n} Duplikate entfernt`);
   }catch(e){console.warn('Dedup error',e);}
 }
 
@@ -654,7 +654,7 @@ CREATE POLICY "all" ON nt_rezepte FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "all" ON nutritrack_days FOR ALL USING (true) WITH CHECK (true);</pre>
 <button class="btn-go" style="margin-top:12px;padding:12px" onclick="retryInit()">Erneut verbinden</button></div>`;
 }
-async function retryInit(){document.getElementById('meals-container').innerHTML='<div class="loading"><div class="spin"></div> Verbinde...</div>';setSS('syncing','&#10227; Verbinde...');await init();}
+async function retryInit(){document.getElementById('meals-container').innerHTML='<div class="loading"><div class="spin"></div> Verbinde...</div>';setSS('syncing','Verbinde...');await init();}
 
 // &#9472;&#9472; SETUP &#9472;&#9472;
 async function saveSetup(){
@@ -733,9 +733,9 @@ async function loadDay(k){
   return{breakfast:[],lunch:[],dinner:[],snacks:[]};
 }
 async function saveDay(k,data){
-  localCache[k]=data;setSS('syncing','&#10227; Speichern...');
-  try{await sbUpsertDay(k,data);setSS('synced','&#10003; Gespeichert');}
-  catch(e){setSS('error','&#9888; Fehler');}
+  localCache[k]=data;setSS('syncing','Speichern...');
+  try{await sbUpsertDay(k,data);setSS('synced','Gespeichert');}
+  catch(e){setSS('error','Fehler');}
 }
 function renderMeals(data){
   const os={};MEALS.forEach(m=>{const el=document.getElementById('list-'+m.id);if(el)os[m.id]=el.classList.contains('open');});
@@ -1090,10 +1090,10 @@ document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))docum
 
 // &#9472;&#9472; STARTUP &#9472;&#9472;
 async function startup(){
-  setSS('syncing','&#10227; Verbinde...');
+  setSS('syncing','Verbinde...');
   try{
     await sb(`/rest/v1/nt_lebensmittel?user_id=eq.${UID}&limit=1`);
-    setSS('synced','&#10003; Verbunden');
+    setSS('synced','Verbunden');
     // Load goals from DB
     const dbGoals=await loadGoalsFromDB();
     if(dbGoals){
@@ -1114,8 +1114,8 @@ async function startup(){
     }
   }catch(e){
     if(e.message.includes('does not exist')||e.message.includes('relation')){
-      setSS('error','&#9888; Tabellen fehlen');showSetupInstructions();
-    }else{setSS('error','&#9888; '+e.message.substring(0,40));}
+      setSS('error','Tabellen fehlen');showSetupInstructions();
+    }else{setSS('error','Fehler: '+e.message.substring(0,40));}
   }
 }
 startup();
