@@ -627,7 +627,18 @@ async function sb(path,method='GET',body=null){
 async function sbGet(table,filter=''){return sb(`/rest/v1/${table}?${filter}&order=name`);}
 async function sbInsert(table,row){return sb(`/rest/v1/${table}`,'POST',row);}
 async function sbDelete(table,id){return sb(`/rest/v1/${table}?id=eq.${id}`,'DELETE');}
-async function sbUpsertDay(key,data){return sb('/rest/v1/nutritrack_days','POST',{user_id:UID,date_key:key,data,updated_at:new Date().toISOString()});}
+async function sbUpsertDay(key,data){
+  return fetch(SB_URL+'/rest/v1/nutritrack_days',{
+    method:'POST',
+    headers:{
+      'apikey':SB_KEY,
+      'Authorization':'Bearer '+SB_KEY,
+      'Content-Type':'application/json',
+      'Prefer':'resolution=merge-duplicates,return=minimal'
+    },
+    body:JSON.stringify({user_id:UID,date_key:key,data,updated_at:new Date().toISOString()})
+  }).then(r=>{if(!r.ok)throw new Error(r.status);});
+}
 async function saveGoalsToDB(g){
   try{await sb('/rest/v1/nt_goals','POST',{user_id:UID,data:g,updated_at:new Date().toISOString()});}
   catch(e){console.warn('Goals save error',e);}
@@ -808,8 +819,19 @@ async function renderAll(){
   renderMeals(data);updateSummary(data);
 }
 async function loadDay(k){
-  if(localCache[k])return localCache[k];
-  try{const rows=await sb(`/rest/v1/nutritrack_days?user_id=eq.${UID}&date_key=eq.${k}`);if(rows&&rows.length){localCache[k]=rows[0].data;return rows[0].data;}}catch(e){}
+  // Always load fresh from DB for current day, use cache only for past days
+  const isToday = k === todayKey();
+  if(!isToday && localCache[k]) return localCache[k];
+  try{
+    const rows=await sb(`/rest/v1/nutritrack_days?user_id=eq.${UID}&date_key=eq.${k}`);
+    if(rows&&rows.length){
+      localCache[k]=rows[0].data;
+      return rows[0].data;
+    }
+  }catch(e){
+    setSS('error','Fehler beim Laden');
+    if(localCache[k])return localCache[k];
+  }
   return{breakfast:[],lunch:[],dinner:[],snacks:[]};
 }
 async function saveDay(k,data){
@@ -840,9 +862,9 @@ function updateSummary(data){
   const ring=document.getElementById('ring-fill');
   ring.style.strokeDashoffset=339-Math.min(kcal/goals.kcal,1)*339;
   ring.style.stroke=kcal>goals.kcal?'#f87171':'#34d399';
-  document.getElementById('mv-protein').textContent=protein+' / '+goals.protein+'g';
-  document.getElementById('mv-fat').textContent=fat+' / '+goals.fat+'g';
-  document.getElementById('mv-carbs').textContent=carbs+' / '+goals.carbs+'g';
+  document.getElementById('mv-protein').textContent=r1(protein)+' / '+goals.protein+'g';
+  document.getElementById('mv-fat').textContent=r1(fat)+' / '+goals.fat+'g';
+  document.getElementById('mv-carbs').textContent=r1(carbs)+' / '+goals.carbs+'g';
   document.getElementById('bar-protein').style.width=Math.min(protein/goals.protein*100,100)+'%';
   document.getElementById('bar-fat').style.width=Math.min(fat/goals.fat*100,100)+'%';
   document.getElementById('bar-carbs').style.width=Math.min(carbs/goals.carbs*100,100)+'%';
