@@ -263,7 +263,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <label>Passwort</label>
       <div class="iu" style="position:relative">
         <input type="password" id="login-pw" placeholder="Dein Passwort..." autocomplete="current-password" style="padding-right:44px" onkeydown="if(event.key==='Enter')doLogin()">
-        <button onclick="togglePW()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--accent);font-size:1rem;padding:0;line-height:1" id="pw-eye">&#128065;</button>
+        <button onclick="togglePW()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--accent);font-size:1rem;padding:0;line-height:1" id="pw-eye">👁</button>
       </div>
     </div>
     <div class="login-error" id="login-error">Benutzername und Passwort eingeben!</div>
@@ -846,7 +846,7 @@ function updateSummary(data){
 // &#9472;&#9472; EINTRAG MODAL &#9472;&#9472;
 function openEintragModal(e,mealId){
   e.stopPropagation();activeMeal=mealId;
-  document.getElementById('eintrag-title').textContent=MEALS.find(m=>m.id===mealId).name+' &#8212; Eintrag';
+  document.getElementById('eintrag-title').textContent=MEALS.find(m=>m.id===mealId).name+' — Eintrag';
   switchMode('db');
   document.getElementById('db-search').value='';
   document.getElementById('db-results').classList.remove('open');
@@ -1182,8 +1182,8 @@ function hashPW(user, pw){
 function togglePW(){
   const inp=document.getElementById('login-pw');
   const eye=document.getElementById('pw-eye');
-  if(inp.type==='password'){inp.type='text';eye.textContent='&#128683;';}
-  else{inp.type='password';eye.innerHTML='&#128065;';}
+  if(inp.type==='password'){inp.type='text';eye.textContent='🙈';}
+  else{inp.type='password';eye.textContent='👁';}
 }
 async function doLogin(){
   const user=document.getElementById('login-user').value.trim();
