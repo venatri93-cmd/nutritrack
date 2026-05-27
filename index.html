@@ -628,7 +628,7 @@ async function sbGet(table,filter=''){return sb(`/rest/v1/${table}?${filter}&ord
 async function sbInsert(table,row){return sb(`/rest/v1/${table}`,'POST',row);}
 async function sbDelete(table,id){return sb(`/rest/v1/${table}?id=eq.${id}`,'DELETE');}
 async function sbUpsertDay(key,data){
-  return fetch(SB_URL+'/rest/v1/nutritrack_days',{
+  return fetch(SB_URL+'/rest/v1/nutritrack_days?on_conflict=user_id,date_key',{
     method:'POST',
     headers:{
       'apikey':SB_KEY,
