@@ -498,6 +498,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           <option>Snacks</option><option>Sonstiges</option>
         </select>
       </div>
+      <div class="ig full"><label>Sichtbarkeit</label>
+        <select id="lm-shared" style="padding-right:14px">
+          <option value="shared">&#127760; F&#252;r alle sichtbar</option>
+          <option value="private">&#128274; Nur f&#252;r mich</option>
+        </select>
+      </div>
       <div class="ig"><label>Kalorien /100g</label><div class="iu"><input type="number" id="lm-kcal" placeholder="0"><span class="unit">kcal</span></div></div>
       <div class="ig"><label>Eiwei&szlig; /100g</label><div class="iu"><input type="number" id="lm-protein" placeholder="0"><span class="unit">g</span></div></div>
       <div class="ig"><label>Fett /100g</label><div class="iu"><input type="number" id="lm-fat" placeholder="0"><span class="unit">g</span></div></div>
@@ -659,7 +665,16 @@ async function seedIfEmpty(){
 
 async function loadAllDB(){
   try{
-    lmDB=await sb(`/rest/v1/nt_lebensmittel?user_id=eq.${UID}&order=name`)||[];
+    // Load shared lebensmittel + user's own
+    const shared=await sb(`/rest/v1/nt_lebensmittel?user_id=eq.shared&order=name`)||[];
+    const personal=await sb(`/rest/v1/nt_lebensmittel?user_id=eq.${UID}&order=name`)||[];
+    // Merge, personal first, no duplicates by name
+    const seen=new Set();
+    lmDB=[];
+    [...personal,...shared].forEach(l=>{
+      if(!seen.has(l.name.toLowerCase())){seen.add(l.name.toLowerCase());lmDB.push(l);}
+    });
+    lmDB.sort((a,b)=>a.name.localeCompare(b.name));
     kompDB=await sb(`/rest/v1/nt_komponenten?user_id=eq.${UID}&order=name`)||[];
     rezDB=await sb(`/rest/v1/nt_rezepte?user_id=eq.${UID}&order=name`)||[];
   }catch(e){console.warn('DB load error',e);}
@@ -941,7 +956,7 @@ function renderLMList(list){
   list=list||lmDB;
   const c=document.getElementById('lm-list');
   if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr&#228;ge</div>';return;}
-  c.innerHTML=list.map(l=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${l.name}</div><div class="db-item-sub">${l.kat} &#183; E:${l.protein}g F:${l.fat}g K:${l.carbs}g (pro 100g)</div></div><div class="db-item-kcal">${l.kcal} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editLM('${l.id}')">&#9999;&#65039;</button><button class="db-del" onclick="deleteLM('${l.id}')">&#10005;</button></div>`).join('');
+  c.innerHTML=list.map(l=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${l.name}${l.user_id==='shared'?' <span style="font-size:0.6rem;background:rgba(167,139,250,0.12);color:#a78bfa;border-radius:6px;padding:2px 6px">geteilt</span>':''}</div><div class="db-item-sub">${l.kat} &#183; E:${l.protein}g F:${l.fat}g K:${l.carbs}g (pro 100g)</div></div><div class="db-item-kcal">${l.kcal} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editLM('${l.id}')">&#9999;&#65039;</button><button class="db-del" onclick="deleteLM('${l.id}')">&#10005;</button></div>`).join('');
 }
 function renderKompList(list){
   list=list||kompDB;
@@ -974,7 +989,7 @@ function editLM(id){openLMModal(lmDB.find(l=>l.id===id));}
 async function saveLM(){
   const name=document.getElementById('lm-name').value.trim();
   if(!name){document.getElementById('lm-name').focus();return;}
-  const row={user_id:UID,name,kat:document.getElementById('lm-kat').value,kcal:parseFloat(document.getElementById('lm-kcal').value)||0,protein:parseFloat(document.getElementById('lm-protein').value)||0,fat:parseFloat(document.getElementById('lm-fat').value)||0,carbs:parseFloat(document.getElementById('lm-carbs').value)||0};
+  const row={user_id:document.getElementById('lm-shared').value==='shared'?'shared':UID,name,kat:document.getElementById('lm-kat').value,kcal:parseFloat(document.getElementById('lm-kcal').value)||0,protein:parseFloat(document.getElementById('lm-protein').value)||0,fat:parseFloat(document.getElementById('lm-fat').value)||0,carbs:parseFloat(document.getElementById('lm-carbs').value)||0};
   try{
     if(editingLMId){
       await sb(`/rest/v1/nt_lebensmittel?id=eq.${editingLMId}`,'PATCH',row);
