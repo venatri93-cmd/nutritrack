@@ -292,6 +292,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="hdr-right">
         <button class="icon-btn" id="cal-toggle-btn" onclick="toggleCal()">&#128197;</button>
         <button class="icon-btn" onclick="openSettings()" style="font-size:0.78rem;padding:8px 12px">Ziele</button>
+        <button class="icon-btn" onclick="doLogout()" style="font-size:0.78rem;padding:8px 12px;color:var(--text3)" title="Ausloggen">&#128274;</button>
       </div>
     </div>
     <div class="sync-bar" id="sync-bar"><div class="sync-dot"></div><span id="sync-text">Verbinde...</span></div>
@@ -1143,6 +1144,15 @@ async function deleteRez(id){if(!confirm('L&ouml;schen?'))return;try{await sbDel
 function closeModal(id,e){if(e&&e.target!==document.getElementById(id))return;document.getElementById(id).classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(el=>el.classList.remove('open'));});
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.search-results').forEach(el=>el.classList.remove('open'));});
+
+function doLogout(){
+  if(!confirm('Wirklich ausloggen?'))return;
+  localStorage.removeItem('nt5_uid');
+  localStorage.removeItem('nt5_user');
+  localStorage.removeItem('nt5_setup');
+  localStorage.removeItem('nt5_goals');
+  location.reload();
+}
 
 // ── LOGIN ──
 function hashPW(user, pw){
