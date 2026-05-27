@@ -229,29 +229,19 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <div id="login-screen" style="display:none">
   <div class="login-icon">
     <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- deep bg circle -->
       <circle cx="45" cy="45" r="45" fill="#121220"/>
-      <!-- moon crescent - bottom, like a cradle -->
-      <path d="M15 62 Q45 80 75 62 Q60 90 30 90 Q10 80 15 62Z" fill="none"/>
       <ellipse cx="45" cy="68" rx="28" ry="10" fill="#a78bfa" opacity="0.15"/>
       <path d="M17 65 Q45 82 73 65" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" fill="none"/>
       <path d="M22 72 Q45 86 68 72" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
-      <!-- glow under moon -->
       <ellipse cx="45" cy="68" rx="22" ry="5" fill="#a78bfa" opacity="0.08"/>
-      <!-- coffee cup body -->
       <rect x="33" y="28" width="24" height="20" rx="4" fill="#1e1b35" stroke="#a78bfa" stroke-width="1.5"/>
-      <!-- cup handle -->
       <path d="M57 33 Q65 33 65 38 Q65 43 57 43" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <!-- coffee liquid -->
       <rect x="35" y="30" width="20" height="16" rx="3" fill="#2d2650"/>
       <ellipse cx="45" cy="30" rx="10" ry="2.5" fill="#34d399" opacity="0.6"/>
-      <!-- steam wisps -->
       <path d="M40 26 Q41 22 40 18" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.7"/>
       <path d="M45 25 Q46 20 45 16" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5"/>
       <path d="M50 26 Q51 22 50 18" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.7"/>
-      <!-- cup saucer -->
       <ellipse cx="45" cy="48" rx="14" ry="3" fill="#a78bfa" opacity="0.3"/>
-      <!-- small stars -->
       <circle cx="24" cy="30" r="1.2" fill="#a78bfa" opacity="0.8"/>
       <circle cx="68" cy="25" r="1" fill="#34d399" opacity="0.7"/>
       <circle cx="20" cy="48" r="0.8" fill="#a78bfa" opacity="0.5"/>
@@ -259,23 +249,27 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </svg>
   </div>
   <div class="login-title">Nutri<span>Track</span></div>
-  <div class="login-sub">Gib dein pers&ouml;nliches Passwort ein um deine Daten zu laden.</div>
+  <div class="login-sub">Melde dich an um deine pers&ouml;nlichen Daten zu laden.</div>
   <div class="login-card">
     <div class="ig">
+      <label>Benutzername</label>
+      <input type="text" id="login-user" placeholder="z.B. hexe123" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pw').focus()">
+    </div>
+    <div class="ig">
       <label>Passwort</label>
-      <div class="iu">
-        <input type="password" id="login-pw" placeholder="Dein Passwort..." onkeydown="if(event.key==='Enter')doLogin()">
-        <span class="unit" style="cursor:pointer;color:var(--accent)" onclick="togglePW()">&#128065;</span>
+      <div class="iu" style="position:relative">
+        <input type="password" id="login-pw" placeholder="Dein Passwort..." autocomplete="current-password" style="padding-right:44px" onkeydown="if(event.key==='Enter')doLogin()">
+        <button onclick="togglePW()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--accent);font-size:1rem;padding:0;line-height:1" id="pw-eye">&#128065;</button>
       </div>
     </div>
-    <div class="login-error" id="login-error">Falsches Passwort – versuch es nochmal</div>
+    <div class="login-error" id="login-error">Benutzername und Passwort eingeben!</div>
     <button class="btn-go" onclick="doLogin()">Einloggen &#10230;</button>
-    <div style="font-size:0.72rem;color:var(--text3);text-align:center">Erstes Mal? Einfach ein Passwort festlegen &ndash; es wird automatisch gespeichert.</div>
+    <div style="font-size:0.72rem;color:var(--text3);text-align:center">Erstes Mal? Einfach Benutzername + Passwort festlegen &ndash; wird automatisch gespeichert.</div>
   </div>
 </div>
 
 <!-- SETUP -->
-<div id="setup-screen">
+<div id="setup-screen" style="display:none">
   <div class="setup-logo">Nutri<span>Track</span></div>
   <div class="setup-sub">Gib deine t&#228;glichen Ziele ein.</div>
   <div class="setup-card">
@@ -1150,21 +1144,27 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.search-results').forEach(el=>el.classList.remove('open'));});
 
 // ── LOGIN ──
-function hashPW(pw){
+function hashPW(user, pw){
   let hash=0;
-  const str='nt5_'+pw.toLowerCase().trim();
+  const str='nt5_'+user.toLowerCase().trim()+'_'+pw.trim();
   for(let i=0;i<str.length;i++){hash=((hash<<5)-hash)+str.charCodeAt(i);hash|=0;}
   return 'u_'+Math.abs(hash).toString(36);
 }
 function togglePW(){
   const inp=document.getElementById('login-pw');
-  inp.type=inp.type==='password'?'text':'password';
+  const eye=document.getElementById('pw-eye');
+  if(inp.type==='password'){inp.type='text';eye.textContent='&#128683;';}
+  else{inp.type='password';eye.innerHTML='&#128065;';}
 }
 async function doLogin(){
+  const user=document.getElementById('login-user').value.trim();
   const pw=document.getElementById('login-pw').value.trim();
-  if(!pw){document.getElementById('login-pw').focus();return;}
-  UID=hashPW(pw);
+  const err=document.getElementById('login-error');
+  if(!user||!pw){err.style.display='block';return;}
+  err.style.display='none';
+  UID=hashPW(user,pw);
   localStorage.setItem('nt5_uid',UID);
+  localStorage.setItem('nt5_user',user);
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app-screen').style.display='block';
   await startup();
