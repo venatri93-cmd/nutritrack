@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NutriTrack</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NutriTrack">
+<meta name="theme-color" content="#08080f">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;NutriTrack&quot;,&quot;short_name&quot;:&quot;NutriTrack&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%2308080f&quot;,&quot;theme_color&quot;:&quot;%2308080f&quot;}">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -15,8 +20,14 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:70px;}
 
-/* SETUP */
-#setup-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:20px;}
+/* LOGIN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;gap:24px;background:var(--bg);}
+.login-icon{display:flex;align-items:center;justify-content:center;}
+.login-title{font-size:2rem;font-weight:800;letter-spacing:-1px;text-align:center;}
+.login-title span{color:var(--accent);}
+.login-sub{color:var(--text2);font-size:0.88rem;text-align:center;line-height:1.5;max-width:280px;}
+.login-card{background:var(--card);border-radius:24px;padding:28px;width:100%;max-width:360px;border:1px solid var(--border);display:flex;flex-direction:column;gap:14px;}
+.login-error{color:var(--red);font-size:0.8rem;text-align:center;display:none;}
 .setup-logo{font-size:2.2rem;font-weight:800;letter-spacing:-1px;}
 .setup-logo span{color:var(--accent);}
 .setup-sub{color:var(--text2);font-size:0.9rem;text-align:center;}
@@ -213,6 +224,55 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:none">
+  <div class="login-icon">
+    <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- deep bg circle -->
+      <circle cx="45" cy="45" r="45" fill="#121220"/>
+      <!-- moon crescent - bottom, like a cradle -->
+      <path d="M15 62 Q45 80 75 62 Q60 90 30 90 Q10 80 15 62Z" fill="none"/>
+      <ellipse cx="45" cy="68" rx="28" ry="10" fill="#a78bfa" opacity="0.15"/>
+      <path d="M17 65 Q45 82 73 65" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M22 72 Q45 86 68 72" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+      <!-- glow under moon -->
+      <ellipse cx="45" cy="68" rx="22" ry="5" fill="#a78bfa" opacity="0.08"/>
+      <!-- coffee cup body -->
+      <rect x="33" y="28" width="24" height="20" rx="4" fill="#1e1b35" stroke="#a78bfa" stroke-width="1.5"/>
+      <!-- cup handle -->
+      <path d="M57 33 Q65 33 65 38 Q65 43 57 43" stroke="#a78bfa" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- coffee liquid -->
+      <rect x="35" y="30" width="20" height="16" rx="3" fill="#2d2650"/>
+      <ellipse cx="45" cy="30" rx="10" ry="2.5" fill="#34d399" opacity="0.6"/>
+      <!-- steam wisps -->
+      <path d="M40 26 Q41 22 40 18" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+      <path d="M45 25 Q46 20 45 16" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5"/>
+      <path d="M50 26 Q51 22 50 18" stroke="#a78bfa" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.7"/>
+      <!-- cup saucer -->
+      <ellipse cx="45" cy="48" rx="14" ry="3" fill="#a78bfa" opacity="0.3"/>
+      <!-- small stars -->
+      <circle cx="24" cy="30" r="1.2" fill="#a78bfa" opacity="0.8"/>
+      <circle cx="68" cy="25" r="1" fill="#34d399" opacity="0.7"/>
+      <circle cx="20" cy="48" r="0.8" fill="#a78bfa" opacity="0.5"/>
+      <circle cx="70" cy="45" r="1" fill="#a78bfa" opacity="0.6"/>
+    </svg>
+  </div>
+  <div class="login-title">Nutri<span>Track</span></div>
+  <div class="login-sub">Gib dein pers&ouml;nliches Passwort ein um deine Daten zu laden.</div>
+  <div class="login-card">
+    <div class="ig">
+      <label>Passwort</label>
+      <div class="iu">
+        <input type="password" id="login-pw" placeholder="Dein Passwort..." onkeydown="if(event.key==='Enter')doLogin()">
+        <span class="unit" style="cursor:pointer;color:var(--accent)" onclick="togglePW()">&#128065;</span>
+      </div>
+    </div>
+    <div class="login-error" id="login-error">Falsches Passwort – versuch es nochmal</div>
+    <button class="btn-go" onclick="doLogin()">Einloggen &#10230;</button>
+    <div style="font-size:0.72rem;color:var(--text3);text-align:center">Erstes Mal? Einfach ein Passwort festlegen &ndash; es wird automatisch gespeichert.</div>
+  </div>
+</div>
 
 <!-- SETUP -->
 <div id="setup-screen">
@@ -487,7 +547,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <script>
 const SB_URL='https://iojktoupfrfembgwclqe.supabase.co';
 const SB_KEY='sb_publishable_h8TqNTprJJV-iF5A5d-LpA_bwGaZjBK';
-const UID='venatri93';
+// UID comes from login - stored in localStorage
+let UID = localStorage.getItem('nt5_uid') || '';
 
 // &#9472;&#9472; SEED DATA &#9472;&#9472;
 const SEED_LM=[
@@ -1088,37 +1149,67 @@ function closeModal(id,e){if(e&&e.target!==document.getElementById(id))return;do
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(el=>el.classList.remove('open'));});
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))document.querySelectorAll('.search-results').forEach(el=>el.classList.remove('open'));});
 
-// &#9472;&#9472; STARTUP &#9472;&#9472;
+// ── LOGIN ──
+function hashPW(pw){
+  let hash=0;
+  const str='nt5_'+pw.toLowerCase().trim();
+  for(let i=0;i<str.length;i++){hash=((hash<<5)-hash)+str.charCodeAt(i);hash|=0;}
+  return 'u_'+Math.abs(hash).toString(36);
+}
+function togglePW(){
+  const inp=document.getElementById('login-pw');
+  inp.type=inp.type==='password'?'text':'password';
+}
+async function doLogin(){
+  const pw=document.getElementById('login-pw').value.trim();
+  if(!pw){document.getElementById('login-pw').focus();return;}
+  UID=hashPW(pw);
+  localStorage.setItem('nt5_uid',UID);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  await startup();
+}
+
+// ── STARTUP ──
 async function startup(){
   setSS('syncing','Verbinde...');
   try{
     await sb(`/rest/v1/nt_lebensmittel?user_id=eq.${UID}&limit=1`);
     setSS('synced','Verbunden');
-    // Load goals from DB
     const dbGoals=await loadGoalsFromDB();
     if(dbGoals){
-      // Goals exist in DB &#8594; go straight to app
       goals=dbGoals;
       localStorage.setItem('nt5_goals',JSON.stringify(goals));
       localStorage.setItem('nt5_setup','1');
       document.getElementById('setup-screen').style.display='none';
       document.getElementById('app-screen').style.display='block';
-      await seedIfEmpty();
-      await loadAllDB();
-      await removeDuplicates();
-      renderAll();
     } else {
-      // No goals in DB yet &#8594; show setup
       document.getElementById('setup-screen').style.display='flex';
       document.getElementById('app-screen').style.display='none';
     }
+    await seedIfEmpty();
+    await loadAllDB();
+    await removeDuplicates();
+    renderAll();
   }catch(e){
     if(e.message.includes('does not exist')||e.message.includes('relation')){
       setSS('error','Tabellen fehlen');showSetupInstructions();
     }else{setSS('error','Fehler: '+e.message.substring(0,40));}
   }
 }
-startup();
+
+// ── BOOT ──
+(function boot(){
+  const savedUID=localStorage.getItem('nt5_uid');
+  if(savedUID){
+    UID=savedUID;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    startup();
+  } else {
+    document.getElementById('login-screen').style.display='flex';
+  }
+})();
 </script>
 </body>
 </html>
