@@ -594,7 +594,7 @@ const SEED_REZ=[
   {name:"Eiskaffee",portionen:1,kcal_ptn:63,protein_ptn:0.5,fat_ptn:0.4,carbs_ptn:13.9,zutaten:[]},
 ];
 
-const MEALS=[{id:'breakfast',name:'Frühstück',icon:'☕'},{id:'lunch',name:'Mittagessen',icon:'🌿'},{id:'dinner',name:'Abendessen',icon:'🕯️'},{id:'snacks',name:'Snacks',icon:'🍄'}];
+const MEALS=[{id:'breakfast',name:String.fromCharCode(70,114,252,104,115,116,252,99,107),icon:'☕'},{id:'lunch',name:'Mittagessen',icon:'🌿'},{id:'dinner',name:'Abendessen',icon:'🕯️'},{id:'snacks',name:'Snacks',icon:'🍄'}];
 const DAYS_FULL=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const MONTHS_DE=['Januar','Februar','M&#228;rz','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 const MONTHS_SH=['Jan','Feb','M&#228;r','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
@@ -651,10 +651,15 @@ async function init(){
 }
 
 async function seedIfEmpty(){
+  // Only seed if no shared lebensmittel exist yet
+  try{
+    const existing=await sb(`/rest/v1/nt_lebensmittel?user_id=eq.shared&limit=1`)||[];
+    if(existing.length>0)return; // shared DB already seeded
+  }catch(e){return;}
   if(localStorage.getItem('nt5_seeded'))return;
   setSS('syncing','Importiere...');
   for(const lm of SEED_LM){
-    try{await sbInsert('nt_lebensmittel',{...lm,user_id:UID});}catch(e){}
+    try{await sbInsert('nt_lebensmittel',{...lm,user_id:'shared'});}catch(e){}
   }
   for(const r of SEED_REZ){
     try{await sbInsert('nt_rezepte',{...r,user_id:UID});}catch(e){}
@@ -914,8 +919,6 @@ async function saveEintrag(){
     if(!selectedDBItem||!document.getElementById('db-amount').value){alert('Lebensmittel und Menge angeben.');return;}
     const g=parseFloat(document.getElementById('db-amount').value);
     entry={name:selectedDBItem.name+' ('+g+'g)',kcal:r0(selectedDBItem.kcal*g/100),protein:r1(selectedDBItem.protein*g/100),fat:r1(selectedDBItem.fat*g/100),carbs:r1(selectedDBItem.carbs*g/100)};
-  
-    entry={name:selectedKomp.name+' (1 Ptn.)',kcal:r0(selectedKomp.kcal_ptn),protein:r1(selectedKomp.protein_ptn),fat:r1(selectedKomp.fat_ptn),carbs:r1(selectedKomp.carbs_ptn)};
   }else if(activeMode==='rez'){
     if(!selectedRez){alert('Rezept w&auml;hlen.');return;}
     entry={name:selectedRez.name+' (1 Ptn.)',kcal:r0(selectedRez.kcal_ptn),protein:r1(selectedRez.protein_ptn),fat:r1(selectedRez.fat_ptn),carbs:r1(selectedRez.carbs_ptn)};
