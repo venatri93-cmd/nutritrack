@@ -525,26 +525,43 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="modal">
     <div class="modal-title">Rezept erstellen</div>
     <div class="ig full" style="margin-bottom:10px"><label>Name des Rezepts</label><input type="text" id="rez-name" placeholder="z.B. Pocket Cheese Burger"></div>
-    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:8px">Zutaten / Komponenten</div>
-    <div class="ing-list" id="rez-ing-list"></div>
-    <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;background:var(--bg);border-radius:14px;padding:8px;">
-      <div class="search-wrap" style="flex:1">
-        <input type="text" id="rez-ing-search" placeholder="Lebensmittel oder Komponente..." autocomplete="off" oninput="searchRezIng()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
-        <div class="search-results" id="rez-ing-results"></div>
-      </div>
-      <div style="position:relative;width:72px;flex-shrink:0">
-        <input type="number" id="rez-ing-g" placeholder="g" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 24px 10px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
-        <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.72rem;pointer-events:none">g</span>
-      </div>
-      <button onclick="addRezIng()" style="background:var(--accent);color:#080b12;border:none;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;flex-shrink:0;font-size:1rem">+</button>
+    <!-- Mode tabs -->
+    <div class="mode-tabs" style="margin-bottom:12px">
+      <button class="mode-tab active" id="rez-tab-zutaten" onclick="switchRezMode('zutaten')">&#127859; Aus Zutaten</button>
+      <button class="mode-tab" id="rez-tab-manuell" onclick="switchRezMode('manuell')">&#9999;&#65039; Manuell</button>
     </div>
-    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:6px">Portionen gesamt</div>
-    <div class="ig" style="margin-bottom:12px"><div class="iu"><input type="number" id="rez-portionen" placeholder="z.B. 4" value="1" oninput="updateRezPreview()"><span class="unit">Ptn.</span></div></div>
-    <div class="macro-preview" id="rez-preview" style="margin-bottom:12px">
-      <div class="mp-box"><div class="mp-val" id="rp-kcal" style="color:var(--accent)">0</div><div class="mp-lbl">kcal/Ptn.</div></div>
-      <div class="mp-box"><div class="mp-val" id="rp-protein" style="color:var(--accent)">0g</div><div class="mp-lbl">Eiwei&szlig;</div></div>
-      <div class="mp-box"><div class="mp-val" id="rp-fat" style="color:var(--orange)">0g</div><div class="mp-lbl">Fett</div></div>
-      <div class="mp-box"><div class="mp-val" id="rp-carbs" style="color:var(--blue)">0g</div><div class="mp-lbl">KH</div></div>
+    <!-- ZUTATEN MODE -->
+    <div id="rez-mode-zutaten">
+      <div class="ing-list" id="rez-ing-list"></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;background:var(--bg);border-radius:14px;padding:8px;">
+        <div class="search-wrap" style="flex:1">
+          <input type="text" id="rez-ing-search" placeholder="Lebensmittel suchen..." autocomplete="off" oninput="searchRezIng()" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
+          <div class="search-results" id="rez-ing-results"></div>
+        </div>
+        <div style="position:relative;width:72px;flex-shrink:0">
+          <input type="number" id="rez-ing-g" placeholder="g" style="width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 24px 10px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
+          <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:0.72rem;pointer-events:none">g</span>
+        </div>
+        <button onclick="addRezIng()" style="background:var(--accent);color:#080b12;border:none;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;flex-shrink:0;font-size:1rem">+</button>
+      </div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:6px">Portionen gesamt</div>
+      <div class="ig" style="margin-bottom:12px"><div class="iu"><input type="number" id="rez-portionen" placeholder="z.B. 4" value="1" oninput="updateRezPreview()"><span class="unit">Ptn.</span></div></div>
+      <div class="macro-preview" id="rez-preview" style="margin-bottom:12px">
+        <div class="mp-box"><div class="mp-val" id="rp-kcal" style="color:var(--accent)">0</div><div class="mp-lbl">kcal/Ptn.</div></div>
+        <div class="mp-box"><div class="mp-val" id="rp-protein" style="color:var(--accent)">0g</div><div class="mp-lbl">Eiwei&szlig;</div></div>
+        <div class="mp-box"><div class="mp-val" id="rp-fat" style="color:var(--orange)">0g</div><div class="mp-lbl">Fett</div></div>
+        <div class="mp-box"><div class="mp-val" id="rp-carbs" style="color:var(--blue)">0g</div><div class="mp-lbl">KH</div></div>
+      </div>
+    </div>
+    <!-- MANUELL MODE -->
+    <div id="rez-mode-manuell" style="display:none">
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="ig"><label>Kalorien/Ptn.</label><div class="iu"><input type="number" id="rez-m-kcal" placeholder="0"><span class="unit">kcal</span></div></div>
+        <div class="ig"><label>Portionen</label><div class="iu"><input type="number" id="rez-m-portionen" placeholder="1" value="1"><span class="unit">Ptn.</span></div></div>
+        <div class="ig"><label>Eiwei&szlig;/Ptn.</label><div class="iu"><input type="number" id="rez-m-protein" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="ig"><label>Fett/Ptn.</label><div class="iu"><input type="number" id="rez-m-fat" placeholder="0"><span class="unit">g</span></div></div>
+        <div class="ig full"><label>Kohlenhydrate/Ptn.</label><div class="iu"><input type="number" id="rez-m-carbs" placeholder="0"><span class="unit">g</span></div></div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('modal-rez')">Abbrechen</button>
@@ -1107,46 +1124,60 @@ async function saveKomp(){
 }
 async function deleteKomp(id){if(!confirm('L&ouml;schen?'))return;try{await sbDelete('nt_komponenten',id);kompDB=kompDB.filter(k=>k.id!==id);renderKompList();}catch(e){alert('Fehler');}}
 
-// &#9472;&#9472; REZ CRUD &#9472;&#9472;
-let editingRezId=null;
+// ── REZ CRUD ──
+let editingRezId=null, rezMode='zutaten';
+
+function switchRezMode(m){
+  rezMode=m;
+  document.getElementById('rez-mode-zutaten').style.display=m==='zutaten'?'block':'none';
+  document.getElementById('rez-mode-manuell').style.display=m==='manuell'?'block':'none';
+  document.getElementById('rez-tab-zutaten').classList.toggle('active',m==='zutaten');
+  document.getElementById('rez-tab-manuell').classList.toggle('active',m==='manuell');
+}
+
 function openRezModal(prefill){
   editingRezId=prefill?prefill.id:null;
   document.getElementById('rez-name').value=prefill?prefill.name:'';
   document.getElementById('rez-portionen').value=prefill?prefill.portionen:'1';
   rezIngredients=prefill?(prefill.zutaten||[]):[];
   rezIngSelected=null;
-  renderRezIngList();updateRezPreview();
+  // If prefill has no zutaten but has kcal, open in manual mode
+  if(prefill&&(!prefill.zutaten||prefill.zutaten.length===0)){
+    switchRezMode('manuell');
+    document.getElementById('rez-m-kcal').value=prefill.kcal_ptn||'';
+    document.getElementById('rez-m-protein').value=prefill.protein_ptn||'';
+    document.getElementById('rez-m-fat').value=prefill.fat_ptn||'';
+    document.getElementById('rez-m-carbs').value=prefill.carbs_ptn||'';
+    document.getElementById('rez-m-portionen').value=prefill.portionen||1;
+  } else {
+    switchRezMode('zutaten');
+    ['rez-m-kcal','rez-m-protein','rez-m-fat','rez-m-carbs'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('rez-m-portionen').value='1';
+    renderRezIngList();updateRezPreview();
+  }
   document.getElementById('modal-rez').classList.add('open');
 }
 function editRez(id){openRezModal(rezDB.find(r=>r.id===id));}
+
 function searchRezIng(){
   const q=document.getElementById('rez-ing-search').value.toLowerCase().trim();
   const res=document.getElementById('rez-ing-results');
   if(!q){res.classList.remove('open');return;}
-  // search both LM and Komponenten
-  const lmMatches=lmDB.filter(l=>l.name.toLowerCase().includes(q)).slice(0,4).map(l=>({...l,type:'lm'}));
-  const kMatches=kompDB.filter(k=>k.name.toLowerCase().includes(q)).slice(0,3).map(k=>({id:k.id,name:k.name,type:'komp',kcal_ptn:k.kcal_ptn,protein_ptn:k.protein_ptn,fat_ptn:k.fat_ptn,carbs_ptn:k.carbs_ptn}));
-  const all=[...lmMatches,...kMatches];
-  res.innerHTML=all.map(l=>`<div class="search-item" onclick="pickRezIng('${l.id}','${l.type}')"><div><div class="si-name">${l.name}</div><div class="si-cat">${l.type==='komp'?'&#129513; Komponente':'Lebensmittel'}</div></div><div class="si-kcal">${l.type==='lm'?l.kcal+'/100g':r0(l.kcal_ptn)+'/Ptn.'}</div></div>`).join('');
-  res.classList.toggle('open',all.length>0);
+  const matches=lmDB.filter(l=>l.name.toLowerCase().includes(q)).slice(0,6);
+  res.innerHTML=matches.map(l=>`<div class="search-item" onclick="pickRezIng('${l.id}')"><div class="si-name">${l.name}</div><div class="si-kcal">${l.kcal}/100g</div></div>`).join('');
+  res.classList.toggle('open',matches.length>0);
 }
-function pickRezIng(id,type){
-  if(type==='lm')rezIngSelected={...lmDB.find(l=>l.id===id),type:'lm'};
-  else rezIngSelected={...kompDB.find(k=>k.id===id),type:'komp'};
+function pickRezIng(id){
+  rezIngSelected={...lmDB.find(l=>l.id===id),type:'lm'};
   document.getElementById('rez-ing-search').value=rezIngSelected.name;
   document.getElementById('rez-ing-results').classList.remove('open');
   document.getElementById('rez-ing-g').focus();
 }
 function addRezIng(){
-  if(!rezIngSelected){alert('Zutat ausw&auml;hlen.');return;}
+  if(!rezIngSelected){alert('Zutat ausw\u00e4hlen.');return;}
   const g=parseFloat(document.getElementById('rez-ing-g').value)||0;
   if(!g){alert('Menge eingeben.');return;}
-  if(rezIngSelected.type==='lm'){
-    rezIngredients.push({id:rezIngSelected.id,name:rezIngSelected.name,g,type:'lm',kcal:rezIngSelected.kcal,protein:rezIngSelected.protein,fat:rezIngSelected.fat,carbs:rezIngSelected.carbs});
-  }else{
-    // for Komponente, g = portions
-    rezIngredients.push({id:rezIngSelected.id,name:rezIngSelected.name,g,type:'komp',kcal_ptn:rezIngSelected.kcal_ptn,protein_ptn:rezIngSelected.protein_ptn,fat_ptn:rezIngSelected.fat_ptn,carbs_ptn:rezIngSelected.carbs_ptn});
-  }
+  rezIngredients.push({id:rezIngSelected.id,name:rezIngSelected.name,g,type:'lm',kcal:rezIngSelected.kcal,protein:rezIngSelected.protein,fat:rezIngSelected.fat,carbs:rezIngSelected.carbs});
   document.getElementById('rez-ing-search').value='';
   document.getElementById('rez-ing-g').value='';
   rezIngSelected=null;
@@ -1155,30 +1186,40 @@ function addRezIng(){
 function removeRezIng(i){rezIngredients.splice(i,1);renderRezIngList();updateRezPreview();}
 function renderRezIngList(){
   const c=document.getElementById('rez-ing-list');
-  c.innerHTML=rezIngredients.length?rezIngredients.map((ing,i)=>`<div class="ing-item"><span class="ing-name">${ing.name}</span><span class="ing-g">${ing.g}${ing.type==='komp'?' Ptn.':'g'}</span><button class="ing-del" onclick="removeRezIng(${i})">&#10005;</button></div>`).join(''):'';
+  c.innerHTML=rezIngredients.length?rezIngredients.map((ing,i)=>`<div class="ing-item"><span class="ing-name">${ing.name}</span><span class="ing-g">${ing.g}g</span><button class="ing-del" onclick="removeRezIng(${i})">&#10005;</button></div>`).join(''):'';
 }
 function updateRezPreview(){
   const portionen=parseFloat(document.getElementById('rez-portionen').value)||1;
   let kcal=0,protein=0,fat=0,carbs=0;
-  rezIngredients.forEach(ing=>{
-    if(ing.type==='lm'){kcal+=ing.kcal*ing.g/100;protein+=ing.protein*ing.g/100;fat+=ing.fat*ing.g/100;carbs+=ing.carbs*ing.g/100;}
-    else{kcal+=ing.kcal_ptn*ing.g;protein+=ing.protein_ptn*ing.g;fat+=ing.fat_ptn*ing.g;carbs+=ing.carbs_ptn*ing.g;}
-  });
+  rezIngredients.forEach(ing=>{kcal+=ing.kcal*ing.g/100;protein+=ing.protein*ing.g/100;fat+=ing.fat*ing.g/100;carbs+=ing.carbs*ing.g/100;});
   document.getElementById('rp-kcal').textContent=r0(kcal/portionen);
   document.getElementById('rp-protein').textContent=r1(protein/portionen)+'g';
   document.getElementById('rp-fat').textContent=r1(fat/portionen)+'g';
   document.getElementById('rp-carbs').textContent=r1(carbs/portionen)+'g';
 }
+
 async function saveRez(){
   const name=document.getElementById('rez-name').value.trim();
   if(!name){document.getElementById('rez-name').focus();return;}
-  const portionen=parseFloat(document.getElementById('rez-portionen').value)||1;
-  let kcal=0,protein=0,fat=0,carbs=0;
-  rezIngredients.forEach(ing=>{
-    if(ing.type==='lm'){kcal+=ing.kcal*ing.g/100;protein+=ing.protein*ing.g/100;fat+=ing.fat*ing.g/100;carbs+=ing.carbs*ing.g/100;}
-    else{kcal+=ing.kcal_ptn*ing.g;protein+=ing.protein_ptn*ing.g;fat+=ing.fat_ptn*ing.g;carbs+=ing.carbs_ptn*ing.g;}
-  });
-  const row={user_id:UID,name,portionen,kcal_ptn:r0(kcal/portionen),protein_ptn:r1(protein/portionen),fat_ptn:r1(fat/portionen),carbs_ptn:r1(carbs/portionen),zutaten:rezIngredients};
+  let kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,portionen,zutaten=[];
+  if(rezMode==='manuell'){
+    kcal_ptn=parseFloat(document.getElementById('rez-m-kcal').value)||0;
+    protein_ptn=parseFloat(document.getElementById('rez-m-protein').value)||0;
+    fat_ptn=parseFloat(document.getElementById('rez-m-fat').value)||0;
+    carbs_ptn=parseFloat(document.getElementById('rez-m-carbs').value)||0;
+    portionen=parseFloat(document.getElementById('rez-m-portionen').value)||1;
+  } else {
+    portionen=parseFloat(document.getElementById('rez-portionen').value)||1;
+    let kcal=0,protein=0,fat=0,carbs=0;
+    rezIngredients.forEach(ing=>{
+      if(ing.type==='lm'){kcal+=ing.kcal*ing.g/100;protein+=ing.protein*ing.g/100;fat+=ing.fat*ing.g/100;carbs+=ing.carbs*ing.g/100;}
+      else{kcal+=ing.kcal_ptn*ing.g;protein+=ing.protein_ptn*ing.g;fat+=ing.fat_ptn*ing.g;carbs+=ing.carbs_ptn*ing.g;}
+    });
+    kcal_ptn=r0(kcal/portionen);protein_ptn=r1(protein/portionen);
+    fat_ptn=r1(fat/portionen);carbs_ptn=r1(carbs/portionen);
+    zutaten=rezIngredients;
+  }
+  const row={user_id:UID,name,portionen,kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,zutaten};
   try{
     if(editingRezId){
       await sb(`/rest/v1/nt_rezepte?id=eq.${editingRezId}`,'PATCH',row);
