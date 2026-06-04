@@ -1113,28 +1113,11 @@ async function saveLM(){
   let fat=parseFloat(document.getElementById('lm-fat').value)||0;
   let carbs=parseFloat(document.getElementById('lm-carbs').value)||0;
   let portionSize=null;
-  // If portion mode: convert to per-100g for storage
   if(lmUnit==='portion'){
     portionSize=parseFloat(document.getElementById('lm-portion-size').value)||0;
-    if(portionSize>0){
-      kcal=r0(kcal/portionSize*100);
-      protein=r1(protein/portionSize*100);
-      fat=r1(fat/portionSize*100);
-      carbs=r1(carbs/portionSize*100);
-    }
+    if(portionSize>0){kcal=r0(kcal/portionSize*100);protein=r1(protein/portionSize*100);fat=r1(fat/portionSize*100);carbs=r1(carbs/portionSize*100);}
   }
   const row={user_id:document.getElementById('lm-shared').value==='shared'?'shared':UID,name,kat:document.getElementById('lm-kat').value,kcal,protein,fat,carbs,portion_size:portionSize};
-  try{
-    if(editingLMId){
-      await sb(`/rest/v1/nt_lebensmittel?id=eq.${editingLMId}`,'PATCH',row);
-      const idx=lmDB.findIndex(l=>l.id===editingLMId);
-      if(idx>=0)lmDB[idx]={...lmDB[idx],...row};
-    }else{
-      const res=await sbInsert('nt_lebensmittel',row);if(res&&res[0])lmDB.push(res[0]);else await loadAllDB();
-    }
-    renderLMList();closeModal('modal-lm');
-  }catch(e){alert('Fehler: '+e.message);}
-}
   try{
     if(editingLMId){
       await sb(`/rest/v1/nt_lebensmittel?id=eq.${editingLMId}`,'PATCH',row);
