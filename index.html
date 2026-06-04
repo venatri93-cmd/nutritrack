@@ -379,9 +379,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <div class="sec-title">Ern&auml;hrung</div>
         <div class="meals-card" id="meals-container"><div class="loading"><div class="spin"></div> Lade...</div></div>
       </div>
+      <div id="day-note-display" style="display:none;margin:0 0 8px"></div>
       <div class="reset-row" style="display:flex;gap:10px">
         <button class="reset-btn" onclick="resetDay()">Tag zur&uuml;cksetzen</button>
         <button class="reset-btn" id="cheat-btn" onclick="toggleCheatDay()" style="border-color:var(--rose);color:var(--rose)">&#127881; Cheat Day</button>
+        <button class="reset-btn" id="note-btn" onclick="openDayNoteModal()" style="border-color:var(--accent);color:var(--accent)">&#128203; Notiz</button>
       </div>
     </div>
   </div>
@@ -422,6 +424,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="ni">&#128452;</div><div class="nl">Grimoire</div>
     </div>
   </nav>
+</div>
+
+<!-- DAY NOTE MODAL -->
+<div class="overlay" id="modal-day-note" onclick="closeModal('modal-day-note',event)">
+  <div class="modal">
+    <div class="modal-title">&#128203; Tagesnotiz</div>
+    <div class="ig full" style="margin-bottom:12px">
+      <label>Schnellnotiz (z.B. Omas Kuchen, Essen beim Restaurant...)</label>
+      <textarea id="day-note-text" placeholder="Notiz hier eingeben..." style="height:120px"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-day-note')">Abbrechen</button>
+      <button class="btn-go" style="flex:2;border-radius:14px;padding:13px" onclick="saveDayNote()">Speichern &#10003;</button>
+    </div>
+  </div>
 </div>
 
 <!-- EINTRAG MODAL (Tagebuch) -->
@@ -538,6 +555,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="modal">
     <div class="modal-title">Rezept erstellen</div>
     <div class="ig full" style="margin-bottom:10px"><label>Name des Rezepts</label><input type="text" id="rez-name" placeholder="z.B. Pocket Cheese Burger"></div>
+    <div class="ig full" style="margin-bottom:10px"><label>Quelle (optional)</label><input type="text" id="rez-quelle" placeholder="z.B. Chefkoch, Mamas Rezept, URL..."></div>
     <!-- Mode tabs -->
     <div class="mode-tabs" style="margin-bottom:12px">
       <button class="mode-tab active" id="rez-tab-zutaten" onclick="switchRezMode('zutaten')">&#127859; Aus Zutaten</button>
@@ -862,6 +880,7 @@ async function renderAll(){
   }else{
     renderMeals(data);updateSummary(data);
   }
+  renderDayNote(data);
 }
 async function loadDay(k){
   // Always load fresh from DB for current day, use cache only for past days
@@ -1026,6 +1045,32 @@ async function delEintrag(mealId,idx){
   const data=await loadDay(currentDateKey);data[mealId].splice(idx,1);
   await saveDay(currentDateKey,data);renderAll();
 }
+// DAY NOTE
+function openDayNoteModal(){
+  const data=localCache[currentDateKey]||{};
+  document.getElementById('day-note-text').value=data.day_note||'';
+  document.getElementById('modal-day-note').classList.add('open');
+  setTimeout(()=>document.getElementById('day-note-text').focus(),80);
+}
+async function saveDayNote(){
+  const note=document.getElementById('day-note-text').value.trim();
+  const data=await loadDay(currentDateKey)||{breakfast:[],lunch:[],dinner:[],snacks:[]};
+  data.day_note=note||null;
+  await saveDay(currentDateKey,data);
+  closeModal('modal-day-note');
+  renderDayNote(data);
+}
+function renderDayNote(data){
+  const el=document.getElementById('day-note-display');
+  if(!el)return;
+  if(data&&data.day_note){
+    el.style.display='block';
+    el.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:12px 16px;border:1px solid var(--border);border-left:3px solid var(--accent);display:flex;align-items:flex-start;gap:10px"><div style="flex:1"><div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:4px">Tagesnotiz</div><div style="font-size:0.85rem;color:var(--text2);white-space:pre-wrap">${data.day_note}</div></div><button onclick="openDayNoteModal()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.8rem;flex-shrink:0">&#9999;&#65039;</button></div>`;
+  }else{
+    el.style.display='none';
+  }
+}
+
 async function toggleCheatDay(){
   const data=await loadDay(currentDateKey)||{breakfast:[],lunch:[],dinner:[],snacks:[]};
   data.is_cheat=!data.is_cheat;
@@ -1066,8 +1111,24 @@ function renderKompList(list){
 function renderRezList(list){
   list=list||rezDB;
   const c=document.getElementById('rez-list');
-  if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr&#228;ge</div>';return;}
-  c.innerHTML=list.map(r=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${r.name}</div><div class="db-item-sub">${r.portionen} Portionen &#183; E:${r1(r.protein_ptn)}g F:${r1(r.fat_ptn)}g K:${r1(r.carbs_ptn)}g</div></div><div class="db-item-kcal">${r0(r.kcal_ptn)} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editRez('${r.id}')">&#9999;&#65039;</button><button class="db-del" onclick="deleteRez('${r.id}')">&#10005;</button></div>`).join('');
+  if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr\u00e4ge</div>';return;}
+  c.innerHTML=list.map(r=>`<div class="db-item" style="flex-direction:column;align-items:stretch;gap:6px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="db-item-info" style="flex:1">
+        <div class="db-item-name">${r.name}</div>
+        <div class="db-item-sub">${r.portionen} Portionen \u00b7 E:${r1(r.protein_ptn)}g F:${r1(r.fat_ptn)}g K:${r1(r.carbs_ptn)}g${r.quelle?` \u00b7 <span style="color:var(--accent)">&#128279; ${r.quelle}</span>`:''}</div>
+      </div>
+      <div class="db-item-kcal">${r0(r.kcal_ptn)} kcal</div>
+      ${r.zutaten&&r.zutaten.length?`<button onclick="toggleRezZutaten('${r.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);padding:4px 8px;cursor:pointer;font-size:0.72rem;flex-shrink:0">&#127859;</button>`:''}
+      <button class="db-del" style="color:var(--blue);font-size:0.8rem" onclick="editRez('${r.id}')">&#9999;&#65039;</button>
+      <button class="db-del" onclick="deleteRez('${r.id}')">&#10005;</button>
+    </div>
+    ${r.zutaten&&r.zutaten.length?`<div id="rez-zutaten-${r.id}" style="display:none;background:var(--bg);border-radius:10px;padding:8px 12px;font-size:0.75rem;color:var(--text2);line-height:1.8">${r.zutaten.map(z=>`<span style="margin-right:10px">\u2022 ${z.name}: ${z.g}g</span>`).join('')}</div>`:''}
+  </div>`).join('');
+}
+function toggleRezZutaten(id){
+  const el=document.getElementById('rez-zutaten-'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
 }
 
 // &#9472;&#9472; LM CRUD &#9472;&#9472;
@@ -1215,10 +1276,10 @@ function switchRezMode(m){
 function openRezModal(prefill){
   editingRezId=prefill?prefill.id:null;
   document.getElementById('rez-name').value=prefill?prefill.name:'';
+  document.getElementById('rez-quelle').value=prefill?prefill.quelle||'':'';
   document.getElementById('rez-portionen').value=prefill?prefill.portionen:'1';
   rezIngredients=prefill?(prefill.zutaten||[]):[];
   rezIngSelected=null;
-  // If prefill has no zutaten but has kcal, open in manual mode
   if(prefill&&(!prefill.zutaten||prefill.zutaten.length===0)){
     switchRezMode('manuell');
     document.getElementById('rez-m-kcal').value=prefill.kcal_ptn||'';
@@ -1226,7 +1287,7 @@ function openRezModal(prefill){
     document.getElementById('rez-m-fat').value=prefill.fat_ptn||'';
     document.getElementById('rez-m-carbs').value=prefill.carbs_ptn||'';
     document.getElementById('rez-m-portionen').value=prefill.portionen||1;
-  } else {
+  }else{
     switchRezMode('zutaten');
     ['rez-m-kcal','rez-m-protein','rez-m-fat','rez-m-carbs'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('rez-m-portionen').value='1';
@@ -1296,7 +1357,7 @@ async function saveRez(){
     fat_ptn=r1(fat/portionen);carbs_ptn=r1(carbs/portionen);
     zutaten=rezIngredients;
   }
-  const row={user_id:UID,name,portionen,kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,zutaten};
+  const row={user_id:UID,name,portionen,kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,zutaten,quelle:document.getElementById('rez-quelle').value.trim()||null};
   try{
     if(editingRezId){
       await sb(`/rest/v1/nt_rezepte?id=eq.${editingRezId}`,'PATCH',row);
