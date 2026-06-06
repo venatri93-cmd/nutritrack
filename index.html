@@ -164,6 +164,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 .db-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
 .db-item{background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.kat-group{margin-bottom:4px;}
+.kat-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--card);border-radius:12px;cursor:pointer;user-select:none;transition:background 0.15s;border:1px solid var(--border);}
+.kat-header:hover{background:var(--card2);}
+.kat-arrow{font-size:0.65rem;color:var(--text3);width:12px;}
+.kat-name{font-size:0.85rem;font-weight:700;flex:1;}
+.kat-count{font-size:0.72rem;color:var(--text3);background:var(--bg);border-radius:8px;padding:2px 8px;}
+.kat-items{padding:4px 0 2px 8px;display:flex;flex-direction:column;gap:2px;}
 .db-item-info{flex:1;}
 .db-item-name{font-size:0.9rem;font-weight:700;}
 .db-item-sub{font-size:0.72rem;color:var(--text2);margin-top:2px;}
@@ -502,9 +509,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal('modal-eintrag')">Abbrechen</button>
-      <button class="btn-go" style="flex:2;border-radius:14px;padding:13px" onclick="saveEintrag()">Hinzuf&uuml;gen &#10003;</button>
+    <div class="modal-actions" style="flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px">
+        <button class="btn-cancel" onclick="closeModal('modal-eintrag');activeMeal=null;renderAll()">Fertig</button>
+        <button class="btn-go" style="flex:2;border-radius:14px;padding:13px" onclick="saveEintrag()">+ Hinzuf&uuml;gen</button>
+      </div>
     </div>
   </div>
 </div>
@@ -517,11 +526,25 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="ig full"><label>Name</label><input type="text" id="lm-name" placeholder="z.B. H&#228;hnchenfilet"></div>
       <div class="ig full"><label>Kategorie</label>
         <select id="lm-kat" style="padding-right:14px">
-          <option>Fleisch</option><option>Getreide</option><option>Gem&#252;se</option>
-          <option>Milchprodukte</option><option>&Ouml;le/Fette</option><option>Getr&#228;nke</option>
-          <option>Snacks</option><option>Sonstiges</option>
+          <option>Fleisch</option>
+          <option>Fisch</option>
+          
+          <option>Milchprodukte & Eier</option>
+          <option>Käse</option>
+          <option>Getreide & Brot</option>
+          <option>Hülsenfrüchte</option>
+          <option>Gemüse</option>
+          <option>Obst</option>
+          <option>Nüsse & Samen</option>
+          <option>Öle & Fette</option>
+          <option>Fertiggerichte</option>
+          <option>Getränke</option>
+          <option>Snacks</option>
+          <option>Süßes & Desserts</option>
+          <option>Sonstiges</option>
         </select>
       </div>
+      <div class="ig full"><label>Marke / Laden (optional)</label><input type="text" id="lm-notiz" placeholder="z.B. Rewe Bio, Lidl, Aldi..."></div>
       <div class="ig full"><label>Sichtbarkeit</label>
         <select id="lm-shared" style="padding-right:14px">
           <option value="shared">&#127760; F&#252;r alle sichtbar</option>
@@ -555,7 +578,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <div class="modal">
     <div class="modal-title">Rezept erstellen</div>
     <div class="ig full" style="margin-bottom:10px"><label>Name des Rezepts</label><input type="text" id="rez-name" placeholder="z.B. Pocket Cheese Burger"></div>
-    <div class="ig full" style="margin-bottom:10px"><label>Quelle (optional)</label><input type="text" id="rez-quelle" placeholder="z.B. Chefkoch, Mamas Rezept, URL..."></div>
+    <div class="modal-grid" style="margin-bottom:10px">
+      <div class="ig"><label>Kategorie</label>
+        <select id="rez-kat" style="padding-right:14px">
+          <option>Frühstück</option>
+          <option>Hauptgericht</option>
+          <option>Salat & Beilagen</option>
+          <option>Suppen & Eintöpfe</option>
+          <option>Shakes & Smoothies</option>
+          <option>Dessert & Süßes</option>
+          <option>Snacks</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="ig"><label>Quelle (optional)</label><input type="text" id="rez-quelle" placeholder="z.B. Chefkoch..."></div>
+    </div>
     <!-- Mode tabs -->
     <div class="mode-tabs" style="margin-bottom:12px">
       <button class="mode-tab active" id="rez-tab-zutaten" onclick="switchRezMode('zutaten')">&#127859; Aus Zutaten</button>
@@ -613,25 +650,25 @@ const SEED_LM=[
   {name:"Zucker",kat:"Sonstiges",kcal:405,protein:0,fat:0,carbs:99.8},
   {name:"Brauner Zucker",kat:"Sonstiges",kcal:396,protein:0,fat:0,carbs:99},
   {name:"Dinkelmehl 630",kat:"Getreide",kcal:357,protein:12.4,fat:1.3,carbs:72},
-  {name:"Skyr",kat:"Milchprodukte",kcal:62,protein:10.7,fat:0.2,carbs:4},
+  {name:"Skyr",kat:"Milchprodukte & Eier",kcal:62,protein:10.7,fat:0.2,carbs:4},
   {name:"Passierte Tomaten",kat:"Gem&#252;se",kcal:28,protein:0.8,fat:0.1,carbs:5.1},
   {name:"Thunfisch im eigenen Saft",kat:"Fleisch",kcal:118,protein:27.8,fat:0.8,carbs:0},
-  {name:"Mozzarella gerieben",kat:"Milchprodukte",kcal:329,protein:23.5,fat:25,carbs:2.5},
+  {name:"Mozzarella gerieben",kat:"Milchprodukte & Eier",kcal:329,protein:23.5,fat:25,carbs:2.5},
   {name:"Miracel Whip original",kat:"Sonstiges",kcal:254,protein:0.3,fat:22,carbs:12},
-  {name:"Mozzarella ganz",kat:"Milchprodukte",kcal:235,protein:17.5,fat:18,carbs:0.8},
-  {name:"Cremefine 7%",kat:"Milchprodukte",kcal:89,protein:1.1,fat:7.4,carbs:4.8},
-  {name:"Joghurt 1,5%",kat:"Milchprodukte",kcal:61,protein:4.7,fat:1.8,carbs:6.1},
+  {name:"Mozzarella ganz",kat:"Milchprodukte & Eier",kcal:235,protein:17.5,fat:18,carbs:0.8},
+  {name:"Cremefine 7%",kat:"Milchprodukte & Eier",kcal:89,protein:1.1,fat:7.4,carbs:4.8},
+  {name:"Joghurt 1,5%",kat:"Milchprodukte & Eier",kcal:61,protein:4.7,fat:1.8,carbs:6.1},
   {name:"Senf Bautzner",kat:"Sonstiges",kcal:108,protein:6.1,fat:6.7,carbs:2.2},
   {name:"Senf Edeka",kat:"Sonstiges",kcal:118,protein:6,fat:7.4,carbs:2.3},
   {name:"Ketchup Heinz",kat:"Sonstiges",kcal:102,protein:1.2,fat:0.1,carbs:23.2},
-  {name:"Milch 1,5%",kat:"Milchprodukte",kcal:47,protein:3.4,fat:1.5,carbs:5},
+  {name:"Milch 1,5%",kat:"Milchprodukte & Eier",kcal:47,protein:3.4,fat:1.5,carbs:5},
   {name:"Rinderhack",kat:"Fleisch",kcal:223,protein:27.6,fat:13,carbs:0.7},
   {name:"H&#228;hnchenfilet",kat:"Fleisch",kcal:105,protein:23,fat:2,carbs:0},
   {name:"D&#228;nische Gurken",kat:"Gem&#252;se",kcal:71,protein:0.6,fat:0.1,carbs:15},
   {name:"Gem&#252;sezwiebeln",kat:"Gem&#252;se",kcal:30,protein:1.2,fat:0.3,carbs:4.9},
-  {name:"Fitline Kr&#228;uter 0,2%",kat:"Milchprodukte",kcal:66,protein:10.5,fat:0.2,carbs:4.5},
+  {name:"Fitline Kr&#228;uter 0,2%",kat:"Milchprodukte & Eier",kcal:66,protein:10.5,fat:0.2,carbs:4.5},
   {name:"Jasminreis",kat:"Getreide",kcal:349,protein:7.5,fat:1,carbs:76},
-  {name:"Butter",kat:"Milchprodukte",kcal:747,protein:0.6,fat:82,carbs:1},
+  {name:"Butter",kat:"Milchprodukte & Eier",kcal:747,protein:0.6,fat:82,carbs:1},
   {name:"Reisessig",kat:"Sonstiges",kcal:15,protein:0,fat:0,carbs:0},
   {name:"Sojaso&#223;e",kat:"Sonstiges",kcal:63,protein:10.3,fat:0.2,carbs:5.2},
   {name:"Apfelessig",kat:"Sonstiges",kcal:24,protein:0,fat:0,carbs:1.5},
@@ -1039,7 +1076,27 @@ async function saveEintrag(){
   const data=await loadDay(currentDateKey);
   data[activeMeal].push(entry);
   await saveDay(currentDateKey,data);
-  closeModal('modal-eintrag');activeMeal=null;renderAll();
+  // Stay open - reset for next entry
+  selectedDBItem=null;selectedRez=null;
+  document.getElementById('db-search').value='';
+  document.getElementById('db-results').classList.remove('open');
+  document.getElementById('db-fields').style.display='none';
+  document.getElementById('db-amount').value='';
+  document.getElementById('m-name').value='';
+  document.getElementById('m-kcal').value='';
+  document.getElementById('m-protein').value='';
+  document.getElementById('m-fat').value='';
+  document.getElementById('m-carbs').value='';
+  ['p-kcal','p-protein','p-fat','p-carbs'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});
+  switchMode('db');
+  // Show a brief confirmation
+  const btn=document.querySelector('#modal-eintrag .btn-go');
+  const orig=btn.innerHTML;
+  btn.innerHTML='&#10003; Gespeichert!';
+  btn.style.background='var(--green)';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},1200);
+  // Update summary in background
+  renderAll();
 }
 async function delEintrag(mealId,idx){
   const data=await loadDay(currentDateKey);data[mealId].splice(idx,1);
@@ -1085,7 +1142,7 @@ function renderDBScreen(){
 }
 function filterLM(){
   const q=document.getElementById('lm-search').value.toLowerCase();
-  renderLMList(lmDB.filter(l=>l.name.toLowerCase().includes(q)||l.kat.toLowerCase().includes(q)));
+  renderLMList(lmDB.filter(l=>l.name.toLowerCase().includes(q)||l.kat.toLowerCase().includes(q)||(l.notiz&&l.notiz.toLowerCase().includes(q))));
 }
 function filterKomp(){
   const q=document.getElementById('komp-search').value.toLowerCase();
@@ -1096,11 +1153,44 @@ function filterRez(){
   renderRezList(rezDB.filter(r=>r.name.toLowerCase().includes(q)));
 }
 
+const LM_KATEGORIEN=['Fleisch','Fisch','Milchprodukte & Eier','Käse','Getreide & Brot','Hülsenfrüchte','Gemüse','Obst','Nüsse & Samen','Öle & Fette','Fertiggerichte','Getränke','Snacks','Süßes & Desserts','Sonstiges'];
+let openKats=new Set(JSON.parse(localStorage.getItem('nt5_open_kats')||'["Fleisch","Milchprodukte & Eier","Käse","Getreide & Brot"]'));
+
 function renderLMList(list){
   list=list||lmDB;
   const c=document.getElementById('lm-list');
-  if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr&#228;ge</div>';return;}
-  c.innerHTML=list.map(l=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${l.name}${l.user_id==='shared'?' <span style="font-size:0.6rem;background:rgba(167,139,250,0.12);color:#a78bfa;border-radius:6px;padding:2px 6px">geteilt</span>':''}</div><div class="db-item-sub">${l.kat} · E:${l.protein}g F:${l.fat}g K:${l.carbs}g ${l.portion_size?`(1 Portion=${l.portion_size}g)`:'(pro 100g)'}</div></div><div class="db-item-kcal">${l.portion_size?Math.round(l.kcal*l.portion_size/100):l.kcal} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editLM('${l.id}')">&#9999;&#65039;</button><button class="db-del" onclick="deleteLM('${l.id}')">&#10005;</button></div>`).join('');
+  if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr\u00e4ge</div>';return;}
+
+  // Group by category
+  const groups={};
+  list.forEach(l=>{
+    const kat=l.kat||'Sonstiges';
+    if(!groups[kat])groups[kat]=[];
+    groups[kat].push(l);
+  });
+
+  // Sort categories by predefined order
+  const sortedKats=LM_KATEGORIEN.filter(k=>groups[k]).concat(Object.keys(groups).filter(k=>!LM_KATEGORIEN.includes(k)));
+
+  c.innerHTML=sortedKats.map(kat=>{
+    const items=groups[kat];
+    const isOpen=openKats.has(kat);
+    return`<div class="kat-group">
+      <div class="kat-header" onclick="toggleKat('${kat.replace(/'/g,"\\'").replace(/&/g,'&amp;')}')">
+        <span class="kat-arrow">${isOpen?'▼':'▶'}</span>
+        <span class="kat-name">${kat}</span>
+        <span class="kat-count">${items.length}</span>
+      </div>
+      <div class="kat-items" style="display:${isOpen?'block':'none'}">
+        ${items.map(l=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${l.name}${l.user_id==='shared'?' <span style="font-size:0.6rem;background:rgba(167,139,250,0.12);color:#a78bfa;border-radius:6px;padding:2px 6px">geteilt</span>':''}</div><div class="db-item-sub">${l.notiz?`<span style="color:var(--text3)">${l.notiz}</span> · `:''}E:${l.protein}g F:${l.fat}g K:${l.carbs}g ${l.portion_size?`(1 Portion=${l.portion_size}g)`:'(pro 100g)'}</div></div><div class="db-item-kcal">${l.portion_size?Math.round(l.kcal*l.portion_size/100):l.kcal} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editLM('${l.id}')">✏️</button><button class="db-del" onclick="deleteLM('${l.id}')">✕</button></div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleKat(kat){
+  if(openKats.has(kat))openKats.delete(kat);else openKats.add(kat);
+  localStorage.setItem('nt5_open_kats',JSON.stringify([...openKats]));
+  renderLMList();
 }
 function renderKompList(list){
   list=list||kompDB;
@@ -1108,27 +1198,62 @@ function renderKompList(list){
   if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr&#228;ge</div>';return;}
   c.innerHTML=list.map(k=>`<div class="db-item"><div class="db-item-info"><div class="db-item-name">${k.name}</div><div class="db-item-sub">${k.portionen} Portionen &#183; E:${r1(k.protein_ptn)}g F:${r1(k.fat_ptn)}g K:${r1(k.carbs_ptn)}g</div></div><div class="db-item-kcal">${r0(k.kcal_ptn)} kcal</div><button class="db-del" style="color:var(--blue);font-size:0.8rem;margin-right:2px" onclick="editKomp('${k.id}')">&#9999;&#65039;</button><button class="db-del" onclick="deleteKomp('${k.id}')">&#10005;</button></div>`).join('');
 }
+const REZ_KATEGORIEN=['\uD83C\uDF05 Frühstück','\uD83C\uDF7D\uFE0F Hauptgericht','\uD83E\uDD57 Salat & Beilagen','\uD83C\uDF72 Suppen & Eintöpfe','\uD83E\uDD64 Shakes & Smoothies','\uD83C\uDF70 Dessert & Süßes','\uD83C\uDF7F Snacks','\uD83C\uDF0D Sonstiges'];
+const REZ_KAT_KEYS=['Frühstück','Hauptgericht','Salat & Beilagen','Suppen & Eintöpfe','Shakes & Smoothies','Dessert & Süßes','Snacks','Sonstiges'];
+let openRezKats=new Set(JSON.parse(localStorage.getItem('nt5_open_rez_kats')||'["Hauptgericht","Frühstück"]'));
+
 function renderRezList(list){
   list=list||rezDB;
   const c=document.getElementById('rez-list');
   if(!list.length){c.innerHTML='<div class="empty-hint" style="padding:20px">Keine Eintr\u00e4ge</div>';return;}
-  c.innerHTML=list.map(r=>`<div class="db-item" style="flex-direction:column;align-items:stretch;gap:6px">
+
+  const groups={};
+  list.forEach(r=>{
+    const kat=r.kat||'Hauptgericht';
+    if(!groups[kat])groups[kat]=[];
+    groups[kat].push(r);
+  });
+
+  const sortedKats=REZ_KAT_KEYS.filter(k=>groups[k]).concat(Object.keys(groups).filter(k=>!REZ_KAT_KEYS.includes(k)));
+
+  const rezItem=r=>`<div class="db-item" style="flex-direction:column;align-items:stretch;gap:6px">
     <div style="display:flex;align-items:center;gap:8px">
       <div class="db-item-info" style="flex:1">
         <div class="db-item-name">${r.name}</div>
-        <div class="db-item-sub">${r.portionen} Portionen \u00b7 E:${r1(r.protein_ptn)}g F:${r1(r.fat_ptn)}g K:${r1(r.carbs_ptn)}g${r.quelle?` \u00b7 <span style="color:var(--accent)">&#128279; ${r.quelle}</span>`:''}</div>
+        <div class="db-item-sub">${r.portionen} Portionen \u00b7 E:${r1(r.protein_ptn)}g F:${r1(r.fat_ptn)}g K:${r1(r.carbs_ptn)}g${r.quelle?` \u00b7 <span style="color:var(--accent)">\uD83D\uDD17 ${r.quelle}</span>`:''}</div>
       </div>
       <div class="db-item-kcal">${r0(r.kcal_ptn)} kcal</div>
-      ${r.zutaten&&r.zutaten.length?`<button onclick="toggleRezZutaten('${r.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);padding:4px 8px;cursor:pointer;font-size:0.72rem;flex-shrink:0">&#127859;</button>`:''}
-      <button class="db-del" style="color:var(--blue);font-size:0.8rem" onclick="editRez('${r.id}')">&#9999;&#65039;</button>
-      <button class="db-del" onclick="deleteRez('${r.id}')">&#10005;</button>
+      ${r.zutaten&&r.zutaten.length?`<button onclick="toggleRezZutaten('${r.id}')" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);padding:4px 8px;cursor:pointer;font-size:0.72rem;flex-shrink:0">\uD83C\uDF73</button>`:''}
+      <button class="db-del" style="color:var(--blue);font-size:0.8rem" onclick="editRez('${r.id}')">✏️</button>
+      <button class="db-del" onclick="deleteRez('${r.id}')">✕</button>
     </div>
     ${r.zutaten&&r.zutaten.length?`<div id="rez-zutaten-${r.id}" style="display:none;background:var(--bg);border-radius:10px;padding:8px 12px;font-size:0.75rem;color:var(--text2);line-height:1.8">${r.zutaten.map(z=>`<span style="margin-right:10px">\u2022 ${z.name}: ${z.g}g</span>`).join('')}</div>`:''}
-  </div>`).join('');
+  </div>`;
+
+  c.innerHTML=sortedKats.map((kat,i)=>{
+    const items=groups[kat];
+    const isOpen=openRezKats.has(kat);
+    const emoji=REZ_KATEGORIEN[REZ_KAT_KEYS.indexOf(kat)]||kat;
+    return`<div class="kat-group">
+      <div class="kat-header" onclick="toggleRezKat('${kat}')">
+        <span class="kat-arrow">${isOpen?'▼':'▶'}</span>
+        <span class="kat-name">${emoji}</span>
+        <span class="kat-count">${items.length}</span>
+      </div>
+      <div class="kat-items" style="display:${isOpen?'block':'none'}">
+        ${items.map(rezItem).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 function toggleRezZutaten(id){
   const el=document.getElementById('rez-zutaten-'+id);
   if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+function toggleRezKat(kat){
+  if(openRezKats.has(kat))openRezKats.delete(kat);else openRezKats.add(kat);
+  localStorage.setItem('nt5_open_rez_kats',JSON.stringify([...openRezKats]));
+  renderRezList();
 }
 
 // &#9472;&#9472; LM CRUD &#9472;&#9472;
@@ -1150,6 +1275,7 @@ function openLMModal(prefill){
   document.getElementById('lm-modal-title').textContent=editingLMId?'Lebensmittel bearbeiten':'Lebensmittel hinzuf\u00fcgen';
   document.getElementById('lm-name').value=prefill?prefill.name:'';
   document.getElementById('lm-kat').value=prefill?prefill.kat:'Fleisch';
+  document.getElementById('lm-notiz').value=prefill?prefill.notiz||'':'';
   // Handle portion mode
   if(prefill&&prefill.portion_size){
     switchLMUnit('portion');
@@ -1178,7 +1304,7 @@ async function saveLM(){
     portionSize=parseFloat(document.getElementById('lm-portion-size').value)||0;
     if(portionSize>0){kcal=r0(kcal/portionSize*100);protein=r1(protein/portionSize*100);fat=r1(fat/portionSize*100);carbs=r1(carbs/portionSize*100);}
   }
-  const row={user_id:document.getElementById('lm-shared').value==='shared'?'shared':UID,name,kat:document.getElementById('lm-kat').value,kcal,protein,fat,carbs,portion_size:portionSize};
+  const row={user_id:document.getElementById('lm-shared').value==='shared'?'shared':UID,name,kat:document.getElementById('lm-kat').value,kcal,protein,fat,carbs,portion_size:portionSize,notiz:document.getElementById('lm-notiz').value.trim()||null};
   try{
     if(editingLMId){
       await sb(`/rest/v1/nt_lebensmittel?id=eq.${editingLMId}`,'PATCH',row);
@@ -1277,6 +1403,7 @@ function openRezModal(prefill){
   editingRezId=prefill?prefill.id:null;
   document.getElementById('rez-name').value=prefill?prefill.name:'';
   document.getElementById('rez-quelle').value=prefill?prefill.quelle||'':'';
+  document.getElementById('rez-kat').value=prefill?prefill.kat||'Hauptgericht':'Hauptgericht';
   document.getElementById('rez-portionen').value=prefill?prefill.portionen:'1';
   rezIngredients=prefill?(prefill.zutaten||[]):[];
   rezIngSelected=null;
@@ -1357,7 +1484,7 @@ async function saveRez(){
     fat_ptn=r1(fat/portionen);carbs_ptn=r1(carbs/portionen);
     zutaten=rezIngredients;
   }
-  const row={user_id:UID,name,portionen,kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,zutaten,quelle:document.getElementById('rez-quelle').value.trim()||null};
+  const row={user_id:UID,name,portionen,kcal_ptn,protein_ptn,fat_ptn,carbs_ptn,zutaten,quelle:document.getElementById('rez-quelle').value.trim()||null,kat:document.getElementById('rez-kat').value||'Hauptgericht'};
   try{
     if(editingRezId){
       await sb(`/rest/v1/nt_rezepte?id=eq.${editingRezId}`,'PATCH',row);
