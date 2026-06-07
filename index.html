@@ -407,6 +407,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="db-section active" id="dbt-lebensmittel">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="lm-search" placeholder="&#128269; Suchen..." oninput="filterLM()" style="flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;">
+        <button onclick="collapseAllKats()" title="Alle zuklappen" style="background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text2);cursor:pointer;font-size:0.9rem;flex-shrink:0">&#8645;</button>
         <button class="btn-add-new" style="width:auto;padding:10px 14px;border-radius:12px" onclick="openLMModal()">+</button>
       </div>
       <div class="db-list" id="lm-list"><div class="loading"><div class="spin"></div></div></div>
@@ -416,6 +417,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="db-section" id="dbt-rezepte">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="rez-search" placeholder="&#128269; Suchen..." oninput="filterRez()" style="flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;">
+        <button onclick="collapseAllRezKats()" title="Alle zuklappen" style="background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text2);cursor:pointer;font-size:0.9rem;flex-shrink:0">&#8645;</button>
         <button class="btn-add-new" style="width:auto;padding:10px 14px;border-radius:12px" onclick="openRezModal()">+</button>
       </div>
       <div class="db-list" id="rez-list"><div class="loading"><div class="spin"></div></div></div>
@@ -1139,6 +1141,16 @@ async function resetDay(){if(!confirm('Tag zur\u00fccksetzen?'))return;delete lo
 // &#9472;&#9472; DATABASE SCREEN &#9472;&#9472;
 function renderDBScreen(){
   renderLMList();renderRezList();
+}
+function collapseAllKats(){
+  openKats.clear();
+  localStorage.setItem('nt5_open_kats','[]');
+  renderLMList();
+}
+function collapseAllRezKats(){
+  openRezKats.clear();
+  localStorage.setItem('nt5_open_rez_kats','[]');
+  renderRezList();
 }
 function filterLM(){
   const q=document.getElementById('lm-search').value.toLowerCase().trim();
