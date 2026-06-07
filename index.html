@@ -1141,16 +1141,30 @@ function renderDBScreen(){
   renderLMList();renderRezList();
 }
 function filterLM(){
-  const q=document.getElementById('lm-search').value.toLowerCase();
-  renderLMList(lmDB.filter(l=>l.name.toLowerCase().includes(q)||l.kat.toLowerCase().includes(q)||(l.notiz&&l.notiz.toLowerCase().includes(q))));
+  const q=document.getElementById('lm-search').value.toLowerCase().trim();
+  if(!q){
+    renderLMList();
+    return;
+  }
+  const filtered=lmDB.filter(l=>l.name.toLowerCase().includes(q)||l.kat.toLowerCase().includes(q)||(l.notiz&&l.notiz.toLowerCase().includes(q)));
+  // Auto-open categories that have matching items
+  filtered.forEach(l=>{if(l.kat)openKats.add(l.kat);});
+  renderLMList(filtered);
 }
 function filterKomp(){
   const q=document.getElementById('komp-search').value.toLowerCase();
   renderKompList(kompDB.filter(k=>k.name.toLowerCase().includes(q)));
 }
 function filterRez(){
-  const q=document.getElementById('rez-search').value.toLowerCase();
-  renderRezList(rezDB.filter(r=>r.name.toLowerCase().includes(q)));
+  const q=document.getElementById('rez-search').value.toLowerCase().trim();
+  if(!q){
+    renderRezList();
+    return;
+  }
+  const filtered=rezDB.filter(r=>r.name.toLowerCase().includes(q)||(r.kat&&r.kat.toLowerCase().includes(q))||(r.quelle&&r.quelle.toLowerCase().includes(q)));
+  // Auto-open categories that have matching items
+  filtered.forEach(r=>{if(r.kat)openRezKats.add(r.kat);});
+  renderRezList(filtered);
 }
 
 const LM_KATEGORIEN=['Fleisch','Fisch','Milchprodukte & Eier','Käse','Getreide & Brot','Hülsenfrüchte','Gemüse','Obst','Nüsse & Samen','Öle & Fette','Fertiggerichte','Getränke','Snacks','Süßes & Desserts','Sonstiges'];
